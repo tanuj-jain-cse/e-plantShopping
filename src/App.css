@@ -1,0 +1,19 @@
+.landing-page {
+  min-height: 100vh;
+  background-image: url("./assets/plants-background.jpg");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.landing-content {
+  text-align: center;
+  padding: 40px;
+}
+
+.get-started {
+  padding: 12px 24px;
+  cursor: pointer;
+}
