@@ -1,239 +1,160 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  increaseQuantity,
-  decreaseQuantity,
-  removeFromCart,
+  removeItem,
+  updateQuantity,
 } from "./CartSlice";
+import "./App.css";
 
-function CartItem({ cartItems, onContinueShopping }) {
+function CartItem() {
   const dispatch = useDispatch();
 
-  const totalAmount = cartItems.reduce(
-    (total, item) =>
-      total + item.price * item.quantity,
-    0
+  const cartItems = useSelector(
+    (state) => state.cart.items
   );
+
+  // Calculate total cart amount
+  const calculateTotalAmount = () => {
+    return cartItems.reduce(
+      (total, item) =>
+        total + item.price * item.quantity,
+      0
+    );
+  };
+
+  const handleIncrease = (item) => {
+    dispatch(
+      updateQuantity({
+        id: item.id,
+        quantity: item.quantity + 1,
+      })
+    );
+  };
+
+  const handleDecrease = (item) => {
+    if (item.quantity > 1) {
+      dispatch(
+        updateQuantity({
+          id: item.id,
+          quantity: item.quantity - 1,
+        })
+      );
+    } else {
+      dispatch(removeItem(item.id));
+    }
+  };
+
+  const handleRemove = (id) => {
+    dispatch(removeItem(id));
+  };
 
   const handleCheckout = () => {
     alert("Coming Soon");
   };
 
-  return (
-    <div style={styles.container}>
-      <h1>Shopping Cart</h1>
+  const handleContinueShopping = () => {
+    window.location.href = "/";
+  };
 
-      {cartItems.length === 0 ? (
-        <div style={styles.emptyCart}>
-          <h2>Your cart is empty</h2>
+  if (cartItems.length === 0) {
+    return (
+      <div className="container">
+        <div className="emptyCart">
+          <h2>Your cart is empty.</h2>
 
           <button
-            style={styles.continueButton}
-            onClick={onContinueShopping}
+            className="continueButton"
+            onClick={handleContinueShopping}
           >
             Continue Shopping
           </button>
         </div>
-      ) : (
-        <>
-          {/* CART ITEMS */}
-          <div>
-            {cartItems.map((item) => {
-              const itemTotal =
-                item.price * item.quantity;
+      </div>
+    );
+  }
 
-              return (
-                <div
-                  key={item.id}
-                  style={styles.cartCard}
-                >
-                  {/* IMAGE */}
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    style={styles.image}
-                  />
+  return (
+    <div className="container">
+      <h1>Shopping Cart</h1>
 
-                  {/* DETAILS */}
-                  <div style={styles.details}>
-                    <h2>{item.name}</h2>
+      {cartItems.map((item) => (
+        <div className="cartCard" key={item.id}>
 
-                    <p>
-                      Unit Price:{" "}
-                      <strong>${item.price}</strong>
-                    </p>
+          <img
+            className="image"
+            src={item.image}
+            alt={item.name}
+          />
 
-                    <p>
-                      Quantity:{" "}
-                      <strong>{item.quantity}</strong>
-                    </p>
+          <div className="details">
+            <h2>{item.name}</h2>
 
-                    <p>
-                      Total:{" "}
-                      <strong>${itemTotal}</strong>
-                    </p>
+            <p>
+              Unit Price: ${item.price}
+            </p>
 
-                    {/* QUANTITY CONTROLS */}
-                    <div style={styles.quantityControls}>
-                      <button
-                        style={styles.quantityButton}
-                        onClick={() =>
-                          dispatch(
-                            decreaseQuantity(item.id)
-                          )
-                        }
-                      >
-                        −
-                      </button>
+            <p>
+              Quantity: {item.quantity}
+            </p>
 
-                      <span style={styles.quantity}>
-                        {item.quantity}
-                      </span>
+            <p>
+              Total: $
+              {(item.price * item.quantity).toFixed(2)}
+            </p>
 
-                      <button
-                        style={styles.quantityButton}
-                        onClick={() =>
-                          dispatch(
-                            increaseQuantity(item.id)
-                          )
-                        }
-                      >
-                        +
-                      </button>
-                    </div>
+            <div className="quantityControls">
 
-                    {/* REMOVE */}
-                    <button
-                      style={styles.removeButton}
-                      onClick={() =>
-                        dispatch(
-                          removeFromCart(item.id)
-                        )
-                      }
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+              <button
+                className="quantityButton"
+                onClick={() => handleDecrease(item)}
+              >
+                -
+              </button>
 
-          {/* TOTAL */}
-          <div style={styles.summary}>
-            <h2>
-              Total Cart Amount: ${totalAmount}
-            </h2>
+              <span className="quantity">
+                {item.quantity}
+              </span>
 
-            {/* CHECKOUT */}
+              <button
+                className="quantityButton"
+                onClick={() => handleIncrease(item)}
+              >
+                +
+              </button>
+
+            </div>
+
             <button
-              style={styles.checkoutButton}
-              onClick={handleCheckout}
+              className="removeButton"
+              onClick={() => handleRemove(item.id)}
             >
-              Checkout
-            </button>
-
-            {/* CONTINUE SHOPPING */}
-            <button
-              style={styles.continueButton}
-              onClick={onContinueShopping}
-            >
-              Continue Shopping
+              Remove
             </button>
           </div>
-        </>
-      )}
+        </div>
+      ))}
+
+      <div className="summary">
+        <h2>
+          Total: ${calculateTotalAmount().toFixed(2)}
+        </h2>
+
+        <button
+          className="checkoutButton"
+          onClick={handleCheckout}
+        >
+          Checkout
+        </button>
+
+        <button
+          className="continueButton"
+          onClick={handleContinueShopping}
+        >
+          Continue Shopping
+        </button>
+      </div>
     </div>
   );
 }
 
-const styles = {
-  container: {
-    padding: "30px",
-    maxWidth: "1000px",
-    margin: "auto",
-  },
-
-  emptyCart: {
-    textAlign: "center",
-    padding: "50px",
-  },
-
-  cartCard: {
-    display: "flex",
-    gap: "25px",
-    padding: "20px",
-    marginBottom: "20px",
-    border: "1px solid #ddd",
-    borderRadius: "10px",
-    alignItems: "center",
-  },
-
-  image: {
-    width: "180px",
-    height: "150px",
-    objectFit: "cover",
-    borderRadius: "8px",
-  },
-
-  details: {
-    flex: 1,
-  },
-
-  quantityControls: {
-    display: "flex",
-    alignItems: "center",
-    gap: "15px",
-    margin: "15px 0",
-  },
-
-  quantityButton: {
-    width: "35px",
-    height: "35px",
-    fontSize: "20px",
-    cursor: "pointer",
-  },
-
-  quantity: {
-    fontSize: "18px",
-    fontWeight: "bold",
-  },
-
-  removeButton: {
-    padding: "8px 15px",
-    backgroundColor: "#d32f2f",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-
-  summary: {
-    marginTop: "30px",
-    padding: "25px",
-    borderTop: "2px solid #2e7d32",
-    textAlign: "center",
-  },
-
-  checkoutButton: {
-    padding: "12px 25px",
-    margin: "10px",
-    backgroundColor: "#2e7d32",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-
-  continueButton: {
-    padding: "12px 25px",
-    margin: "10px",
-    backgroundColor: "#555",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-};
-
-export default CartItem;   
+export default CartItem;
