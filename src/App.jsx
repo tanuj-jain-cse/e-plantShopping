@@ -1,33 +1,41 @@
-import { useState } from "react";
-import "./App.css";
+import React, { useState } from "react";
 import ProductList from "./ProductList";
 import AboutUs from "./AboutUs";
+import "./App.css";
 
 function App() {
-  const [started, setStarted] = useState(false);
-
-  if (started) {
-    return <ProductList />;
-  }
+  const [showProductList, setShowProductList] = useState(false);
 
   return (
-    <div className="landing-page">
-      <div className="landing-content">
-        <h1>Paradise Nursery</h1>
+    <div>
+      {!showProductList ? (
+        <div className="landing-page background-image">
+          <div className="landing-content">
+            <h1>Paradise Nursery</h1>
 
-        <p>
-          Bring nature home with beautiful houseplants.
-        </p>
+            <p>
+              Welcome to Paradise Nursery, your online destination for
+              beautiful and healthy plants.
+            </p>
 
-        <button
-          className="get-started"
-          onClick={() => setStarted(true)}
-        >
-          Get Started
-        </button>
+            <p>
+              Explore our collection of indoor plants, outdoor plants,
+              and succulents.
+            </p>
 
-        <AboutUs />
-      </div>
+            <button
+              className="get-started"
+              onClick={() => setShowProductList(true)}
+            >
+              Get Started
+            </button>
+
+            <AboutUs />
+          </div>
+        </div>
+      ) : (
+        <ProductList />
+      )}
     </div>
   );
 }
